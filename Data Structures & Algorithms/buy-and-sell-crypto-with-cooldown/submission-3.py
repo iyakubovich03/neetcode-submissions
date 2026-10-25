@@ -1,0 +1,80 @@
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        # after you sell neetCoin i-th day, you cannot buy one on the i+1 th day 
+        # you must buy then sell, you cannot buy,buy then sell sell, so after a buy operation you must sell
+        # need a way to distinguish buying and selling 
+        # brute: try every possible combination, 1st: buy or skip (if we have current balance then we can buy, then add to current total, and reset to selling) #there is no point of ever going negative (not optimal so if that is the case we can just break off )
+        #we dont need to track the current buying power or the profit, profit can be result from recursion and c=buying power is eihter current index or not just track this wiht. asum 
+
+        #bascilly each state either do action or skip w same condiitons, you want the max, track profit w subtractoin and addiiton, basse case return 0, postorder we tkae optimal step based on current condition, and mmeorize from tehre from as we porpaogte back to 0 we take the max state 
+        """
+        memo={}
+
+        def dfs(index,state):
+
+            if index>=len(prices):
+                return 0
+
+            if (index,state) in memo:
+                return memo[(index,state)] #how does this change teh states (we are just trackign the total more intellgiently instead of tracking the distnisuable current_profit and current_buying)
+
+            max_value=0
+            if (state=="l"):
+                max_value=max(max_value,dfs(index+1,state),-prices[index]+dfs(index+1,"s"))
+            else:
+                max_value=max(max_value,dfs(index+1,state),prices[index]+dfs(index+2,"l"))
+
+
+            memo[(index,state)]=max_value
+
+            return memo[(index,state)]
+
+        return dfs(0,"l")
+        """
+    # max(buy[left],sell[index-1]-buy[index])
+    #(etihe max(left,buy[0]+price[index]))
+    #return sell[-1]
+       # buy = [-1,
+       # sell=[0,
+        buy=[0]*len(prices)
+        sell=[0]*len(prices)
+
+        buy[0]=-prices[0]
+        for index in range(1,len(prices)):
+            buy[index]=max(buy[index-1],sell[max(index-2,0)]+ -prices[index])
+            sell[index]=max(sell[index-1],buy[index-1]+prices[index])
+        return sell[-1]
+
+        """
+        memo={}
+
+        def dfs(index,current_buying,current_profit):
+
+            if index>=len(prices):
+                return current_profit
+
+            if (index,current_buying,currrent_profit) in memo:
+                return memo[(index,current_buying,currrent_profit)]
+
+            #we can either buy (if balance is 0), or do nothing skip, or  if stock then sell and update profit, and lanace to 0 
+            max_value=0
+            if current_buying and current_buying<prices[index]: #only sell when goes positive 
+                max_value=max(max_value,dfs(index+1,0,current_profit+(prices[index]+current_buying)))
+
+            #do nothing 
+            max_value=max(max_value,dfs(index+1,current_buying,current_profit))
+
+            #or we can buy 
+            if current_buying==0: #meaning we can buy 
+                max_value=max(max_value, dfs(index+1,prices[index],current_profit))
+
+            meom[(index,current_buying,currrent_profit)]=max_value
+            return (index,current_buying,currrent_profit)]
+
+       return dfs(0,0,0)
+
+       # 2 desciison at each point  2^N runtmie 
+       # maximum possible states (index can go to N), i think tis something like 3^N , we are uisng memo 
+        
+        """
+       
